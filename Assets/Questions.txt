@@ -1,0 +1,10 @@
+The keyboard of a computer would be involved in what step?  input  processing  storage  output  0
+The motherboard and main processor are both involved in what step?  input  processing  storage  output  1
+Which Component has a volatile memory?  ROM  RAM  HDD  SSD  1
+Which of the following lists has the clock speed in order, from slowest to fastest?  megahertz, gigahertz, hertz  gigahertz, megahertz, hertz  hertz, megahertz, gigahertz  gigahertz, hertz, megahertz  2
+Which of the following is the fastest clock speed for a processor?  20 hertz  10 megahertz  1.3 gigahertz  2.6 gigahertz  3
+A 1920x1080 monitor would be called:  HD  HDD  WQHD  UHD  0
+A 2560x1440 monitor would be called:  HD  HDD  WQHD  UHD  2
+A 4096x2160 monitor would be called:  HD  HDD  WQHD  UHD  3
+Which is not a function of an Operating System?  To keep track of all the peripheral devices  To run security software  To provide a user interface  To compile code for the user  3
+Which is not an operating System?  Ubuntu  Safari  Android  Windows  1
