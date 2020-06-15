@@ -44,7 +44,7 @@ public class AI {
         }
         int pick = (int)(possibilities.size()*Math.random());
         player.attack(possibilities.get(pick));
-        return new double[] {player.attackStats[pick][0], player.isStunned(player.attackStats[pick][2]) ? 1:0};
+        return new double[] {player.attackStats[possibilities.get(pick)][0], player.isStunned(player.attackStats[possibilities.get(pick)][2]) ? 1:0};
     }
 
     private double[] wealthy() {

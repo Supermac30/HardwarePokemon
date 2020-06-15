@@ -1,7 +1,7 @@
 
 public class Pokemon {
     double health = 100;
-    double stamina = 100;
+    double stamina = 80;
     String name;
     String[] attacks;
     double[][] attackStats; // Stores the strength, stamina, and opponent stun chance of each attack,
@@ -38,6 +38,17 @@ public class Pokemon {
         stamina = Math.min(stamina + defendIncrease, 100);
         health = Math.min(health + defendIncrease, 100);
     }
+
+    public Pokemon(Pokemon copy) {
+        name = copy.name;
+        attacks = copy.attacks;
+        attackStats = copy.attackStats;
+        defendIncrease = copy.defendIncrease;
+        criticalHitChance = copy.criticalHitChance;
+        sprite = copy.sprite;
+    }
+
+    public Pokemon() {}
 }
 
 class Pikachu extends Pokemon {
@@ -55,7 +66,7 @@ class Pikachu extends Pokemon {
         attackStats = new double[][] {
                 {10, 10, 0.3},
                 {10, 5, 0.1},
-                {5, 0, 0}
+                {5, 1, 0}
         };
 
         criticalHitChance = 0.2;
@@ -77,9 +88,9 @@ class Pidgey extends Pokemon {
         };
 
         attackStats = new double[][] {
-                {10, 5, 0.1},
-                {1, 5, 0.5},
-                {5, 0, 0}
+                {10, 20, 0.1},
+                {1, 10, 0.5},
+                {5, 1, 0}
         };
 
         criticalHitChance = 0.05;
@@ -103,7 +114,7 @@ class Charmander extends Pokemon {
         attackStats = new double[][] {
                 {1, 10, 0.9},
                 {15, 15, 0},
-                {5, 0, 0}
+                {5, 1, 0}
         };
 
         criticalHitChance = 0.05;
@@ -126,8 +137,8 @@ class Squirtle extends Pokemon {
 
         attackStats = new double[][] {
                 {10, 10, 0.1},
-                {25, 80, 0},
-                {5, 0, 0}
+                {25, 40, 0},
+                {5, 1, 0}
         };
 
         criticalHitChance = 0.05;
@@ -151,7 +162,7 @@ class Bulbasaur extends Pokemon {
         attackStats = new double[][] {
                 {10, 30, 0.5},
                 {10, 8, 0},
-                {5, 0, 0}
+                {5, 1, 0}
         };
 
         criticalHitChance = 0.05;

@@ -3,6 +3,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
@@ -14,9 +16,7 @@ public class Battle extends JFrame implements KeyListener {
             {new JLabel("ITEM"), new JLabel("Use an item")}
     };
     JLabel[][] attackMenu;
-    JLabel[][] itemsMenu = {
-            {new JLabel("POKEBALL"), new JLabel("Capture the pokemon")}
-    };
+    JLabel[][] itemsMenu = new JLabel[3][2];
     JLabel[][][] menus;
     JPanel description = new JPanel();
     JPanel choices = new JPanel();
@@ -43,15 +43,17 @@ public class Battle extends JFrame implements KeyListener {
     Pokemon enemy;
     Player trainer;
     AI enemyAI;
+    GameMenu source;
+    int location;
 
-    boolean turn;
-
-    public Battle(Player trainerStart, Pokemon playerStart, Pokemon enemyStart, AI ai) {
+    public Battle(Player trainerStart, Pokemon playerStart, Pokemon enemyStart, AI ai, GameMenu gameMenu, int locationStart) {
         player = playerStart;
         enemy = enemyStart;
         enemyAI = ai;
         trainer = trainerStart;
         enemyAI.player = enemy;
+        source = gameMenu;
+        location = locationStart;
 
         staminaMessage.setFont(new Font("Courier", Font.PLAIN, 20));
 
@@ -61,6 +63,12 @@ public class Battle extends JFrame implements KeyListener {
             double[][] stats = player.attackStats;
             attackMenu[i][1] = new JLabel("Damage: " + stats[i][0] + "  Stun Chance: " + (stats[i][2]*100) + "%  Stamina Cost: " + stats[i][1]);
         }
+
+        for (int i = 0; i < itemsMenu.length; i++) {
+            itemsMenu[i][0] = new JLabel(trainer.items[i].name + " x" + trainer.items[i].amount);
+            itemsMenu[i][1] = new JLabel(trainer.items[i].description);
+        }
+
         menus = new JLabel[][][] {rootMenu, attackMenu, null, null, itemsMenu};
         setTitle("BATTLE!");
         for (JLabel[] option: rootMenu) {
@@ -178,7 +186,7 @@ public class Battle extends JFrame implements KeyListener {
         enemyInfo.setText("HEALTH: " + enemy.health + "    STAMINA: " + enemy.stamina);
     }
 
-    private void addMessage(String message, boolean stopReplacement) {
+    public void addMessage(String message, boolean stopReplacement) {
         description.removeAll();
         JLabel mess = new JLabel(message);
         mess.setFont(new Font("Courier", Font.PLAIN, 20));
@@ -206,7 +214,10 @@ public class Battle extends JFrame implements KeyListener {
         boolean isStunned = false;
         if (question.right) {
             if (enemy.attacked(amount)) {
-                // You win
+                addMessage("You win gaining " + (location+1) * 10 +
+                        " money and unlocking the next stage!", true);
+                source.endBattle(true);
+                return;
             }
             String message = "You answered correctly and attacked dealing " + amount + " damage";
             if (player.isStunned(player.attackStats[choice][2])) {
@@ -222,7 +233,6 @@ public class Battle extends JFrame implements KeyListener {
         updatePanel();
         if (!isStunned) {
             AITurn();
-            turn = !turn;
         }
     }
 
@@ -230,16 +240,45 @@ public class Battle extends JFrame implements KeyListener {
         player.defend();
         addMessage("You defended gaining " + player.defendIncrease + " health and stamina!", false);
         updatePanel();
-        turn = !turn;
         AITurn();
+    }
+
+    public void retreat() {
+        addMessage("You ran away!", true);
+        source.endBattle(false);
+    }
+
+    public void updateItems() {
+        for (int i = 0; i < itemsMenu.length; i++) {
+            itemsMenu[i][0].setText(trainer.items[i].name + " x" + trainer.items[i].amount);
+        }
+        revalidate();
+        repaint();
+    }
+
+    public void useItem(int index) {
+        if (trainer.items[index].amount == 0) {
+            addMessage("You don't have any of this item", true);
+            return;
+        }
+        if (index == 0) {
+            if (location == 1) {
+                addMessage("You captured the PokeHardWareMon!", true);
+                trainer.items[index].use(trainer, player, enemy);
+                source.endBattle(true);
+                return;
+            }
+            addMessage("You can't capture PokeHardWareMon outside the jungle", true);
+        } else {
+            trainer.items[index].use(trainer, player, enemy);
+            updatePanel();
+            updateItems();
+        }
     }
 
     public void AITurn() {
         ActionListener AITurn = evt -> {
-            if (turn) {
-                AIPlay();
-                turn = !turn;
-            }
+            AIPlay();
         };
         Timer timer = new Timer(800 ,AITurn);
         timer.setRepeats(false);
@@ -249,12 +288,13 @@ public class Battle extends JFrame implements KeyListener {
     public void AIPlay() {
         double[] action = enemyAI.action();
         if (action[0] == -1 && action[1] == -1) {
+            updatePanel();
             addMessage("Enemy Defends gaining " + enemy.defendIncrease + " health and stamina!", false);
         }
         else if (player.attacked(action[0])) {
             updatePanel();
-            addMessage("You Lose!", false);
-            // You lose
+            addMessage("You Lose!", true);
+            source.endBattle(false);
         } else {
             updatePanel();
             String message = "Enemy attacked dealing " + action[0] + " damage";
@@ -281,11 +321,16 @@ public class Battle extends JFrame implements KeyListener {
                     case 0:
                         if (pointer == 1) {
                             defend();
+                        } else if (pointer == 2) {
+                            retreat();
                         }
                         goToMenu = pointer + 1;
                         break;
                     case 1:
                         attackStart(pointer);
+                        break;
+                    case 4:
+                        useItem(pointer);
                         break;
                 }
                 break;

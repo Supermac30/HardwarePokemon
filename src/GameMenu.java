@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.Arrays;
 
 public class GameMenu implements MenuInterface{
@@ -44,9 +45,9 @@ public class GameMenu implements MenuInterface{
         for (int i = 0; i < pokemons.length; i++) {
             pokemons[i] = new JLabel(player.pokemons.get(i).name);
         }
-        JLabel[] items = new JLabel[player.items.size()];
+        JLabel[] items = new JLabel[player.items.length];
         for (int i = 0; i < items.length; i++) {
-            items[i] = new JLabel(player.items.get(i).name + " x" + player.items.get(i).amount);
+            items[i] = new JLabel(player.items[i].name + " x" + player.items[i].amount);
         }
 
         menu.layers[2].title.setText("<html><pre style = \"font-family:courier\">     Shop<br>Balance = " + player.money + "</pre></html>");
@@ -67,14 +68,18 @@ public class GameMenu implements MenuInterface{
                     player,
                     player.pokemons.get(pokemonIndex),
                     new Pidgey(),
-                    new AI(null, 0)
+                    new AI(null, 0),
+                    this,
+                    location
             );
         } else {
             battle = new Battle(
                     player,
                     player.pokemons.get(pokemonIndex),
                     pickRandomPokemon(),
-                    new AI(null, location)
+                    new AI(null, location),
+                    this,
+                    location
             );
         }
         menu.setVisible(false);
@@ -82,13 +87,27 @@ public class GameMenu implements MenuInterface{
     }
 
     public void endBattle(boolean win) {
-        menu.setVisible(true);
-        battle.setVisible(false);
-        if (!win) {
-            return;
+        ActionListener end = evt -> {
+            menu.changeLayer(0);
+            menu.setVisible(true);
+            battle.setVisible(false);
+            if (!win) {
+                return;
+            }
+            player.level ++;
+            player.money += (location+1) * 10;
+            updatePlayerInfo();
+        };
+        Timer timer = new Timer(1500 ,end);
+        timer.setRepeats(false);
+        timer.start();
+    }
+
+    public void handleShop(int index) {
+        if (player.money >= player.items[index].price) {
+            player.items[index].amount ++;
+            player.money -= player.items[index].price;
         }
-        player.level ++;
-        player.money += location * 10;
         updatePlayerInfo();
     }
 
@@ -106,6 +125,9 @@ public class GameMenu implements MenuInterface{
                 case 1:
                     menu.changeLayer(5);
                     location = pointer;
+                    break;
+                case 2:
+                    handleShop(pointer);
                     break;
                 case 5:
                     startBattle(pointer);
