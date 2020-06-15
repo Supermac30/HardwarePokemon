@@ -20,7 +20,7 @@ public class Questions extends JFrame implements KeyListener {
     Battle battle;
     double amount;
 
-    public Questions (Battle source, double value) {
+    public Questions(Battle source, double value) {
         battle = source;
         amount = value;
 
@@ -79,7 +79,7 @@ public class Questions extends JFrame implements KeyListener {
     public void answer(double choice) {
         right = choice == correct;
         done = true;
-        battle.attackComplete(amount, (int) choice);
+        battle.attackComplete(amount);
     }
 
     @Override

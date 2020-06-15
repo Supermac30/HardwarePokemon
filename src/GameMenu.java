@@ -77,9 +77,13 @@ public class GameMenu implements MenuInterface{
                     new AI(null, location)
             );
         }
+        menu.setVisible(false);
+        battle.setVisible(true);
     }
 
     public void endBattle(boolean win) {
+        menu.setVisible(true);
+        battle.setVisible(false);
         if (!win) {
             return;
         }
@@ -102,8 +106,10 @@ public class GameMenu implements MenuInterface{
                 case 1:
                     menu.changeLayer(5);
                     location = pointer;
+                    break;
                 case 5:
                     startBattle(pointer);
+                    break;
             }
         }
     }

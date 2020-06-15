@@ -30,6 +30,8 @@ public class Battle extends JFrame implements KeyListener {
     JPanel enemySide = new JPanel();
     JPanel field = new JPanel();
 
+    int choice;
+
     int pointer = 0;
     int currentMenu = 0;
     boolean wait = false;
@@ -186,7 +188,8 @@ public class Battle extends JFrame implements KeyListener {
         repaint();
     }
 
-    public void attackStart(int choice) {
+    public void attackStart(int picks) {
+        choice = picks;
         if (player.attack(choice)) {
             question = new Questions(this, player.attackStats[choice][0]);
             question.setVisible(true);
@@ -198,7 +201,7 @@ public class Battle extends JFrame implements KeyListener {
         }
     }
 
-    public void attackComplete(double amount, int choice) {
+    public void attackComplete(double amount) {
         question.setVisible(false);
         boolean isStunned = false;
         if (question.right) {
@@ -206,7 +209,7 @@ public class Battle extends JFrame implements KeyListener {
                 // You win
             }
             String message = "You answered correctly and attacked dealing " + amount + " damage";
-            if (player.isStunned(player.attackStats[choice][1])) {
+            if (player.isStunned(player.attackStats[choice][2])) {
                 isStunned = true;
                 message += " and stunning your opponent!";
             }
@@ -216,10 +219,10 @@ public class Battle extends JFrame implements KeyListener {
         }
         question = null;
         wait = false;
-        turn = !turn;
         updatePanel();
         if (!isStunned) {
             AITurn();
+            turn = !turn;
         }
     }
 
@@ -232,15 +235,13 @@ public class Battle extends JFrame implements KeyListener {
     }
 
     public void AITurn() {
-        ActionListener AITurn = new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                if (turn) {
-                    AIPlay();
-                    turn = !turn;
-                }
+        ActionListener AITurn = evt -> {
+            if (turn) {
+                AIPlay();
+                turn = !turn;
             }
         };
-        Timer timer = new Timer(1000 ,AITurn);
+        Timer timer = new Timer(800 ,AITurn);
         timer.setRepeats(false);
         timer.start();
     }
@@ -260,9 +261,10 @@ public class Battle extends JFrame implements KeyListener {
             if (action[1] == 1) {
                 message += " and stunning you!";
                 addMessage(message, false);
-                AIPlay();
+                AITurn();
+            } else {
+                addMessage(message, false);
             }
-            addMessage(message, false);
         }
     }
 
