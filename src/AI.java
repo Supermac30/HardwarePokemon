@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class AI {
     Pokemon player;
     int type;
@@ -12,8 +14,10 @@ public class AI {
         type = t;
     }
 
-    public int[] action() {
-        // Returns the damage and whether or not the player is now stunned. The pokemon's stamina is decreased
+    public double[] action() {
+        // Returns the damage and whether or not the player is now stunned.
+        // The pokemon's stamina is decreased
+        // Returns [-1, -1] if the player is defending
         switch(type) {
             case 0:
                 return random();
@@ -27,19 +31,31 @@ public class AI {
         return null;
     }
 
-    private int[] random() {
+    private double[] random() {
+        ArrayList<Integer> possibilities = new ArrayList();
+        for (int i = 0; i < player.attackStats.length; i++) {
+            if (player.stamina >= player.attackStats[i][1]) {
+                possibilities.add(i);
+            }
+        }
+        if (possibilities.isEmpty()) {
+            player.defend();
+            return new double[] {-1, -1};
+        }
+        int pick = (int)(possibilities.size()*Math.random());
+        player.attack(possibilities.get(pick));
+        return new double[] {player.attackStats[pick][0], player.isStunned(player.attackStats[pick][2]) ? 1:0};
+    }
+
+    private double[] wealthy() {
         return null;
     }
 
-    private int[] wealthy() {
+    private double[] greedy() {
         return null;
     }
 
-    private int[] greedy() {
-        return null;
-    }
-
-    private int[] smart() {
+    private double[] smart() {
         return null;
     }
 }

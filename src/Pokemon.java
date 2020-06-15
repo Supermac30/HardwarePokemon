@@ -2,12 +2,15 @@
 public class Pokemon {
     double health = 100;
     double stamina = 100;
-    int type; // Types for now: normal - 0, water - 1, fire - 2, electric - 3
+    String name;
     String[] attacks;
-    double[][] attackStats; // Stores the strength, stamina, and opponent stun chance of each attack, [strength, stamina, opponent stun chance]
+    double[][] attackStats; // Stores the strength, stamina, and opponent stun chance of each attack,
+    // [strength, stamina, opponent stun chance]
     int defendIncrease;
     double criticalHitChance;
-    String icon; // Stores the name of the text file with the icon inside
+
+    // Stores the name of the text file with the sprites inside inside
+    String sprite;
 
     public boolean attack(int attack) {
         if (attackStats[attack][1] > stamina) {
@@ -21,6 +24,10 @@ public class Pokemon {
         return Math.random() < criticalHitChance;
     }
 
+    public boolean isStunned(double stunChance) {
+        return Math.random() < stunChance;
+    }
+
     public boolean attacked(double amount) {
         // Changes health and returns whether or not the pokemon is dead
         health = Math.max(health-amount, 0);
@@ -28,14 +35,16 @@ public class Pokemon {
     }
 
     public void defend() {
-        stamina = Math.max(stamina + defendIncrease, 100);
-        health = Math.max(health + defendIncrease, 100);
+        stamina = Math.min(stamina + defendIncrease, 100);
+        health = Math.min(health + defendIncrease, 100);
     }
 }
 
 class Pikachu extends Pokemon {
     public Pikachu() {
-        type = 3;
+        name = "Pikachu";
+
+        defendIncrease = 10;
 
         attacks = new String[] {
                 "THUNDER SHOCK",
@@ -50,12 +59,16 @@ class Pikachu extends Pokemon {
         };
 
         criticalHitChance = 0.2;
+
+        sprite = "Assets/pikachu.png";
     }
 }
 
 class Pidgey extends Pokemon {
     public Pidgey() {
-        type = 0;
+        name = "Pidgey";
+
+        defendIncrease = 5;
 
         attacks = new String[] {
                 "TACKLE",
@@ -65,17 +78,21 @@ class Pidgey extends Pokemon {
 
         attackStats = new double[][] {
                 {10, 5, 0.1},
-                {0, 5, 0.5},
+                {1, 5, 0.5},
                 {5, 0, 0}
         };
 
         criticalHitChance = 0.05;
+
+        sprite = "Assets/pidgey.png";
     }
 }
 
 class Charmander extends Pokemon {
     public Charmander() {
-        type = 2;
+        name = "Charmander";
+
+        defendIncrease = 10;
 
         attacks = new String[] {
                 "GROWL",
@@ -84,18 +101,22 @@ class Charmander extends Pokemon {
         };
 
         attackStats = new double[][] {
-                {0, 10, 0.9},
+                {1, 10, 0.9},
                 {15, 15, 0},
                 {5, 0, 0}
         };
 
         criticalHitChance = 0.05;
+
+        sprite = "Assets/charmander.png";
     }
 }
 
 class Squirtle extends Pokemon {
     public Squirtle() {
-        type = 1;
+        name = "Squirtle";
+
+        defendIncrease = 5;
 
         attacks = new String[] {
                 "TAIL WHIP",
@@ -105,10 +126,36 @@ class Squirtle extends Pokemon {
 
         attackStats = new double[][] {
                 {10, 10, 0.1},
-                {50, 80, 0},
+                {25, 80, 0},
                 {5, 0, 0}
         };
 
         criticalHitChance = 0.05;
+
+        sprite = "Assets/squirtle.png";
+    }
+}
+
+class Bulbasaur extends Pokemon {
+    public Bulbasaur() {
+        name = "Bulbasaur";
+
+        defendIncrease = 5;
+
+        attacks = new String[] {
+                "VINE WHIP",
+                "RAZOR LEAF",
+                "QUICK ATTACK"
+        };
+
+        attackStats = new double[][] {
+                {10, 30, 0.5},
+                {10, 8, 0},
+                {5, 0, 0}
+        };
+
+        criticalHitChance = 0.05;
+
+        sprite = "Assets/bulbasaur.png";
     }
 }

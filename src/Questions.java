@@ -79,7 +79,7 @@ public class Questions extends JFrame implements KeyListener {
     public void answer(double choice) {
         right = choice == correct;
         done = true;
-        battle.attackComplete(amount);
+        battle.attackComplete(amount, (int) choice);
     }
 
     @Override

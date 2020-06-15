@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.*;
@@ -18,6 +20,16 @@ public class Battle extends JFrame implements KeyListener {
     JLabel[][][] menus;
     JPanel description = new JPanel();
     JPanel choices = new JPanel();
+
+    JLabel playerInfo = new JLabel();
+    JLabel enemyInfo = new JLabel();
+    JLabel playerSprite = new JLabel();
+    JLabel enemySprite = new JLabel();
+
+    JPanel playerSide = new JPanel();
+    JPanel enemySide = new JPanel();
+    JPanel field = new JPanel();
+
     int pointer = 0;
     int currentMenu = 0;
     boolean wait = false;
@@ -27,12 +39,17 @@ public class Battle extends JFrame implements KeyListener {
 
     Pokemon player;
     Pokemon enemy;
+    Player trainer;
+    AI enemyAI;
 
     boolean turn;
 
-    public Battle(Pokemon playerStart, Pokemon enemyStart) {
+    public Battle(Player trainerStart, Pokemon playerStart, Pokemon enemyStart, AI ai) {
         player = playerStart;
         enemy = enemyStart;
+        enemyAI = ai;
+        trainer = trainerStart;
+        enemyAI.player = enemy;
 
         staminaMessage.setFont(new Font("Courier", Font.PLAIN, 20));
 
@@ -60,25 +77,62 @@ public class Battle extends JFrame implements KeyListener {
         rootMenu[0][0].setBackground(Color.YELLOW);
 
         setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.gridx = 0;
-        c.gridy = 0;
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        add(Box.createGlue(), c);
-        c.gridx = 0;
-        c.gridy = 1;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 0.0;
-        c.weighty = 0.0;
+        GridBagConstraints c0 = new GridBagConstraints();
+        c0.gridx = 0;
+        c0.gridy = 0;
+        c0.fill = GridBagConstraints.BOTH;
+        c0.weightx = 1.0;
+        c0.weighty = 1.0;
+        add(Box.createGlue(), c0);
+        c0.gridx = 0;
+        c0.gridy = 2;
+        c0.fill = GridBagConstraints.HORIZONTAL;
+        c0.weightx = 0.0;
+        c0.weighty = 0.0;
 
         description.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         description.add(rootMenu[0][1]);
-        add(description, c);
-        c.gridy = 3;
-        add(choices, c);
+        add(description, c0);
+        c0.gridy = 3;
+        add(choices, c0);
         addKeyListener(this);
+
+        Icon imgIcon = new ImageIcon(player.sprite);
+        playerSprite.setIcon(imgIcon);
+        playerSprite.setBorder(new EmptyBorder(0, 85, 0, 0));
+
+        imgIcon = new ImageIcon(enemy.sprite);
+        enemySprite.setIcon(imgIcon);
+        enemySprite.setBorder(new EmptyBorder(0, 85, 0, 0));
+
+        playerInfo.setText("HEALTH: " + player.health + "    STAMINA: " + player.stamina);
+        enemyInfo.setText("HEALTH: " + enemy.health + "    STAMINA: " + enemy.stamina);
+        playerInfo.setFont(new Font("Courier", Font.BOLD, 20));
+        enemyInfo.setFont(new Font("Courier", Font.BOLD, 20));
+
+        playerSide.setLayout(new BorderLayout());
+        enemySide.setLayout(new BorderLayout());
+        enemySide.add(enemySprite, BorderLayout.CENTER);
+        playerSide.add(playerSprite, BorderLayout.CENTER);
+        playerSide.add(playerInfo, BorderLayout.SOUTH);
+        enemySide.add(enemyInfo, BorderLayout.SOUTH);
+
+        playerSide.setBorder(new EmptyBorder(10, 50, 10, 50));
+        enemySide.setBorder(new EmptyBorder(10, 50, 10, 50));
+
+        field.setLayout(new BorderLayout());
+        field.add(playerSide, BorderLayout.WEST);
+        field.add(enemySide, BorderLayout.EAST);
+
+        c0.gridx = 0;
+        c0.gridy = 1;
+        c0.fill = GridBagConstraints.HORIZONTAL;
+        c0.weightx = 0.0;
+        c0.weighty = 0.0;
+
+        add(field, c0);
+
+        setSize(800, 400);
     }
 
     public void updateMenu(int goToMenu) {
@@ -96,7 +150,6 @@ public class Battle extends JFrame implements KeyListener {
                 option[1].setFont(new Font("Courier", Font.PLAIN, 20));
                 option[1].setBorder(new EmptyBorder(10,10,10,10));
                 option[1].setOpaque(true);
-
 
                 choices.add(option[0]);
             }
@@ -116,6 +169,11 @@ public class Battle extends JFrame implements KeyListener {
         }
         repaint();
         validate();
+    }
+
+    void updatePanel() {
+        playerInfo.setText("HEALTH: " + player.health + "    STAMINA: " + player.stamina);
+        enemyInfo.setText("HEALTH: " + enemy.health + "    STAMINA: " + enemy.stamina);
     }
 
     private void addMessage(String message, boolean stopReplacement) {
@@ -140,25 +198,72 @@ public class Battle extends JFrame implements KeyListener {
         }
     }
 
-    public void attackComplete(double amount) {
+    public void attackComplete(double amount, int choice) {
         question.setVisible(false);
-
+        boolean isStunned = false;
         if (question.right) {
             if (enemy.attacked(amount)) {
                 // You win
             }
-            addMessage("You answered correctly and attacked dealing " + amount + " damage!", false);
+            String message = "You answered correctly and attacked dealing " + amount + " damage";
+            if (player.isStunned(player.attackStats[choice][1])) {
+                isStunned = true;
+                message += " and stunning your opponent!";
+            }
+            addMessage(message, false);
         } else {
             addMessage("You answered incorrectly", false);
         }
         question = null;
         wait = false;
         turn = !turn;
+        updatePanel();
+        if (!isStunned) {
+            AITurn();
+        }
     }
 
     public void defend() {
         player.defend();
+        addMessage("You defended gaining " + player.defendIncrease + " health and stamina!", false);
+        updatePanel();
         turn = !turn;
+        AITurn();
+    }
+
+    public void AITurn() {
+        ActionListener AITurn = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                if (turn) {
+                    AIPlay();
+                    turn = !turn;
+                }
+            }
+        };
+        Timer timer = new Timer(1000 ,AITurn);
+        timer.setRepeats(false);
+        timer.start();
+    }
+
+    public void AIPlay() {
+        double[] action = enemyAI.action();
+        if (action[0] == -1 && action[1] == -1) {
+            addMessage("Enemy Defends gaining " + enemy.defendIncrease + " health and stamina!", false);
+        }
+        else if (player.attacked(action[0])) {
+            updatePanel();
+            addMessage("You Lose!", false);
+            // You lose
+        } else {
+            updatePanel();
+            String message = "Enemy attacked dealing " + action[0] + " damage";
+            if (action[1] == 1) {
+                message += " and stunning you!";
+                addMessage(message, false);
+                AIPlay();
+            }
+            addMessage(message, false);
+        }
     }
 
     @Override
@@ -172,13 +277,13 @@ public class Battle extends JFrame implements KeyListener {
             case KeyEvent.VK_ENTER:
                 switch (currentMenu) {
                     case 0:
+                        if (pointer == 1) {
+                            defend();
+                        }
                         goToMenu = pointer + 1;
                         break;
                     case 1:
                         attackStart(pointer);
-                        break;
-                    case 2:
-                        defend();
                         break;
                 }
                 break;
@@ -200,4 +305,5 @@ public class Battle extends JFrame implements KeyListener {
     public void keyTyped(KeyEvent e) {}
     @Override
     public void keyReleased(KeyEvent e) {}
+
 }
