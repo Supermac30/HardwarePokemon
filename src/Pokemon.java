@@ -1,5 +1,5 @@
-
 public class Pokemon {
+    // Stores the data and functions needed for pokemon
     double health = 100;
     double stamina = 80;
     String name;
@@ -7,7 +7,6 @@ public class Pokemon {
     double[][] attackStats; // Stores the strength, stamina, and opponent stun chance of each attack,
     // [strength, stamina, opponent stun chance]
     int defendIncrease;
-    double criticalHitChance;
 
     // Stores the name of the text file with the sprites inside inside
     String sprite;
@@ -20,11 +19,8 @@ public class Pokemon {
         return true;
     }
 
-    public boolean isCritical() {
-        return Math.random() < criticalHitChance;
-    }
-
-    public boolean isStunned(double stunChance) {
+    public static boolean isStunned(double stunChance) {
+        // returns whether or not a stun occurs
         return Math.random() < stunChance;
     }
 
@@ -35,16 +31,18 @@ public class Pokemon {
     }
 
     public void defend() {
+        // Adds to the pokemon's health and defense if they choose not to attack this turn
         stamina = Math.min(stamina + defendIncrease, 100);
         health = Math.min(health + defendIncrease, 100);
     }
 
     public Pokemon(Pokemon copy) {
+        // Copies a pokemon
+        // Used for when a pokemon is captured
         name = copy.name;
         attacks = copy.attacks;
         attackStats = copy.attackStats;
         defendIncrease = copy.defendIncrease;
-        criticalHitChance = copy.criticalHitChance;
         sprite = copy.sprite;
     }
 
@@ -69,9 +67,7 @@ class Pikachu extends Pokemon {
                 {5, 1, 0}
         };
 
-        criticalHitChance = 0.2;
-
-        sprite = "Assets/pikachu.png";
+        sprite = "pikachu.png";
     }
 }
 
@@ -93,9 +89,7 @@ class Pidgey extends Pokemon {
                 {5, 1, 0}
         };
 
-        criticalHitChance = 0.05;
-
-        sprite = "Assets/pidgey.png";
+        sprite = "pidgey.png";
     }
 }
 
@@ -117,9 +111,7 @@ class Charmander extends Pokemon {
                 {5, 1, 0}
         };
 
-        criticalHitChance = 0.05;
-
-        sprite = "Assets/charmander.png";
+        sprite = "charmander.png";
     }
 }
 
@@ -141,9 +133,7 @@ class Squirtle extends Pokemon {
                 {5, 1, 0}
         };
 
-        criticalHitChance = 0.05;
-
-        sprite = "Assets/squirtle.png";
+        sprite = "squirtle.png";
     }
 }
 
@@ -165,8 +155,6 @@ class Bulbasaur extends Pokemon {
                 {5, 1, 0}
         };
 
-        criticalHitChance = 0.05;
-
-        sprite = "Assets/bulbasaur.png";
+        sprite = "bulbasaur.png";
     }
 }

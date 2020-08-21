@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 
 public class Player {
+    // Stores the related data for the player, including how far they
+    // progressed and their current inventory
     ArrayList<Pokemon> pokemons = new ArrayList<Pokemon>();
     Items[] items = {
             new PokeBall(),

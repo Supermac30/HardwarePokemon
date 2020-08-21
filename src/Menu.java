@@ -5,6 +5,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 class Layer {
+    // The class that stores each layer of the menu
+    // Composed of a title, buttons the user can press, and optionally text that should be displayed underneath
     JLabel title;
     JLabel[] buttons;
     JLabel text = null;
@@ -20,10 +22,12 @@ class Layer {
 }
 
 interface MenuInterface {
+    // Any class that has a Menu must implement this interface to handle events from the user.
     void handleMenu(boolean pressedEnter, int layerNumber, int pointer);
 }
 
-public class Menu <E extends MenuInterface> extends JFrame implements KeyListener{
+public class Menu <E extends MenuInterface> extends JFrame implements KeyListener {
+    // An abstraction of the menu functions needed in the start screen and in game menus
     Layer[] layers;
     JPanel menuPanel = new JPanel();
     int currentLayer = 0;
@@ -31,17 +35,19 @@ public class Menu <E extends MenuInterface> extends JFrame implements KeyListene
     E source;
 
     public Menu(E initSource, Layer[] initLayers) {
-        // Requires a handleMenu function in the source object to function properly
         layers = initLayers;
         source = initSource;
 
         addKeyListener(this);
 
         buildLayer(currentLayer);
+
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     public void buildLayer(int layerNumber) {
-        layers[layerNumber].title.setFont(new Font("Courier", Font.BOLD, 30));
+        // Changes the menu to the layer in the layers array with index layerNumber
+        layers[layerNumber].title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
         layers[layerNumber].title.setBorder(new EmptyBorder(10,100,30,100));
 
         menuPanel.setLayout(new GridBagLayout());
@@ -54,7 +60,7 @@ public class Menu <E extends MenuInterface> extends JFrame implements KeyListene
         c.gridy = 1;
         if (layers[layerNumber].buttons != null) {
             for (JLabel button : layers[layerNumber].buttons) {
-                button.setFont(new Font("Courier", Font.BOLD, 30));
+                button.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
                 button.setBorder(new EmptyBorder(30, 30, 30, 30));
                 button.setOpaque(true);
                 button.setBackground(null);
@@ -67,7 +73,7 @@ public class Menu <E extends MenuInterface> extends JFrame implements KeyListene
 
         if (layers[layerNumber].text != null) {
             c.fill = GridBagConstraints.HORIZONTAL;
-            layers[layerNumber].text.setFont(new Font("Courier", Font.PLAIN, 20));
+            layers[layerNumber].text.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
             menuPanel.add(layers[layerNumber].text, c);
         }
 
@@ -76,6 +82,7 @@ public class Menu <E extends MenuInterface> extends JFrame implements KeyListene
     }
 
     public void updateMenu() {
+        // Changes which item has a yellow background
         if (layers[currentLayer].buttons == null) {
             return;
         }
@@ -88,6 +95,7 @@ public class Menu <E extends MenuInterface> extends JFrame implements KeyListene
     }
 
     public void changeLayer(int layerNumber) {
+        // Changes the current layer
         pointer = 0;
         currentLayer = layerNumber;
         buildLayer(currentLayer);
@@ -95,6 +103,7 @@ public class Menu <E extends MenuInterface> extends JFrame implements KeyListene
 
     @Override
     public void keyPressed(KeyEvent e) {
+        // Calls the handleMenu function in the source to update the menu
         int keyCode = e.getKeyCode();
         switch (keyCode) {
             case KeyEvent.VK_ENTER:
@@ -107,7 +116,9 @@ public class Menu <E extends MenuInterface> extends JFrame implements KeyListene
                 pointer = Math.max(pointer-1, 0);
                 break;
             case KeyEvent.VK_DOWN :
-                pointer = Math.min(pointer+1, layers[currentLayer].buttons.length-1);
+                if (layers[currentLayer].buttons != null) {
+                    pointer = Math.min(pointer+1, layers[currentLayer].buttons.length-1);
+                }
                 break;
         }
         updateMenu();

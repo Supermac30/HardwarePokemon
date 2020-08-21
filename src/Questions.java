@@ -3,19 +3,20 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.File;  
+import java.io.InputStreamReader;
 import java.util.Scanner;
-import java.io.FileNotFoundException;
 
 public class Questions extends JFrame implements KeyListener {
-    int questionNum = (int)(Math.random()*10);
+    // Creates a question for the user to answer from Questions.txt and returns
+    // whether or not they answered correctly
+    int numberOfQuestions = 10; // Important - This should be updated when new questions are added to Questions.txt
+    int questionNum = (int)(Math.random() * numberOfQuestions);
     JLabel question = new JLabel();
     JPanel answerPanel = new JPanel();
     String[] data;
     JLabel[] answers;
     int correct;
     int pointer = 0;
-    public boolean done = false;
     public boolean right;
     Battle battle;
     double amount;
@@ -25,24 +26,20 @@ public class Questions extends JFrame implements KeyListener {
         amount = value;
 
         setTitle("ANSWER THIS!");
-        try {
-            File myObj = new File("Assets/Questions.txt");
-            Scanner scanner = new Scanner(myObj);
-            for (int i = 0; i < questionNum; i++) {
-                scanner.nextLine();
-            }
-            data = scanner.nextLine().split("  ");
-            scanner.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        // Takes a question from Questions.txt
+        Scanner scanner = new Scanner(new InputStreamReader(getClass().getResourceAsStream("Questions.txt")));
+        for (int i = 0; i < questionNum; i++) {
+            scanner.nextLine();
         }
+        data = scanner.nextLine().split("  ");
+        scanner.close();
 
         answers = new JLabel[data.length-2];
         question.setText(data[0]);
         correct = Integer.parseInt(data[data.length-1]);
         for (int i = 0; i < answers.length; i++) {
             answers[i] = new JLabel(data[i+1]);
-            answers[i].setFont(new Font("Courier", Font.BOLD, 20));
+            answers[i].setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
             answers[i].setBorder(new EmptyBorder(10,10,10,10));
             answers[i].setOpaque(true);
             answers[i].setBackground(null);
@@ -57,7 +54,7 @@ public class Questions extends JFrame implements KeyListener {
         c.gridy = 0;
         c.insets = new Insets(10, 10, 10, 10);
 
-        question.setFont(new Font("Courier", Font.BOLD, 30));
+        question.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
         question.setBorder(new EmptyBorder(0, 0, 20, 0));
         add(question, c);
 
@@ -67,9 +64,12 @@ public class Questions extends JFrame implements KeyListener {
         add(answerPanel, c);
 
         addKeyListener(this);
+
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     public void updateMenu() {
+        // Changes which possible answer is currently highlighted
         for (int i = 0; i < answers.length; i++) {
             answers[i].setBackground(null);
         }
@@ -77,8 +77,9 @@ public class Questions extends JFrame implements KeyListener {
     }
 
     public void answer(double choice) {
+        // Calls the attackComplete function from the battle object it was called
+        // from returning whether or not the answer was correct
         right = choice == correct;
-        done = true;
         battle.attackComplete(amount);
     }
 

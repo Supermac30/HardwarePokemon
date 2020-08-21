@@ -3,12 +3,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
-import java.util.Arrays;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 public class Battle extends JFrame implements KeyListener {
+    // Creates the battles for the player
     JLabel[][] rootMenu = {
             {new JLabel("ATTACK"), new JLabel("Perform an attack that damages or stuns your opponent")},
             {new JLabel("DEFEND"), new JLabel("Opt not to attack this turn to regain your stamina and health")},
@@ -17,7 +16,7 @@ public class Battle extends JFrame implements KeyListener {
     };
     JLabel[][] attackMenu;
     JLabel[][] itemsMenu = new JLabel[3][2];
-    JLabel[][][] menus;
+    JLabel[][][] menus; // Stores the menus the user can navigate through in battle
     JPanel description = new JPanel();
     JPanel choices = new JPanel();
 
@@ -55,8 +54,9 @@ public class Battle extends JFrame implements KeyListener {
         source = gameMenu;
         location = locationStart;
 
-        staminaMessage.setFont(new Font("Courier", Font.PLAIN, 20));
+        staminaMessage.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 
+        // Adds the attacks of the pokemon to the attackMenu
         attackMenu = new JLabel[player.attacks.length][2];
         for (int i = 0; i < attackMenu.length; i++) {
             attackMenu[i][0] = new JLabel(player.attacks[i]);
@@ -64,6 +64,7 @@ public class Battle extends JFrame implements KeyListener {
             attackMenu[i][1] = new JLabel("Damage: " + stats[i][0] + "  Stun Chance: " + (stats[i][2]*100) + "%  Stamina Cost: " + stats[i][1]);
         }
 
+        // Adds the player's items to the itemMenu
         for (int i = 0; i < itemsMenu.length; i++) {
             itemsMenu[i][0] = new JLabel(trainer.items[i].name + " x" + trainer.items[i].amount);
             itemsMenu[i][1] = new JLabel(trainer.items[i].description);
@@ -72,12 +73,12 @@ public class Battle extends JFrame implements KeyListener {
         menus = new JLabel[][][] {rootMenu, attackMenu, null, null, itemsMenu};
         setTitle("BATTLE!");
         for (JLabel[] option: rootMenu) {
-            option[0].setFont(new Font("Courier", Font.BOLD, 30));
+            option[0].setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
             option[0].setBorder(new EmptyBorder(10,10,10,10));
             option[0].setOpaque(true);
             option[0].setBackground(null);
 
-            option[1].setFont(new Font("Courier", Font.PLAIN, 20));
+            option[1].setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
             option[1].setBorder(new EmptyBorder(10,10,10,10));
             option[1].setOpaque(true);
             option[1].setBackground(null);
@@ -107,18 +108,18 @@ public class Battle extends JFrame implements KeyListener {
         add(choices, c0);
         addKeyListener(this);
 
-        Icon imgIcon = new ImageIcon(player.sprite);
+        Icon imgIcon = new ImageIcon(getClass().getResource(player.sprite));
         playerSprite.setIcon(imgIcon);
         playerSprite.setBorder(new EmptyBorder(0, 85, 0, 0));
 
-        imgIcon = new ImageIcon(enemy.sprite);
+        imgIcon = new ImageIcon(getClass().getResource(enemy.sprite));
         enemySprite.setIcon(imgIcon);
         enemySprite.setBorder(new EmptyBorder(0, 85, 0, 0));
 
         playerInfo.setText("HEALTH: " + player.health + "    STAMINA: " + player.stamina);
         enemyInfo.setText("HEALTH: " + enemy.health + "    STAMINA: " + enemy.stamina);
-        playerInfo.setFont(new Font("Courier", Font.BOLD, 20));
-        enemyInfo.setFont(new Font("Courier", Font.BOLD, 20));
+        playerInfo.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
+        enemyInfo.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
 
         playerSide.setLayout(new BorderLayout());
         enemySide.setLayout(new BorderLayout());
@@ -143,9 +144,12 @@ public class Battle extends JFrame implements KeyListener {
         add(field, c0);
 
         setSize(800, 400);
+
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     public void updateMenu(int goToMenu) {
+        // Changes the layer the menu is on and updates which button currently has a yellow background
         if (menus[goToMenu] == null) {
             return;
         }
@@ -153,11 +157,11 @@ public class Battle extends JFrame implements KeyListener {
         if (goToMenu != currentMenu) {
             choices.removeAll();
             for (JLabel[] option : menu) {
-                option[0].setFont(new Font("Courier", Font.BOLD, 30));
+                option[0].setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
                 option[0].setBorder(new EmptyBorder(10,10,10,10));
                 option[0].setOpaque(true);
                 option[0].setBackground(null);
-                option[1].setFont(new Font("Courier", Font.PLAIN, 20));
+                option[1].setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
                 option[1].setBorder(new EmptyBorder(10,10,10,10));
                 option[1].setOpaque(true);
 
@@ -182,14 +186,16 @@ public class Battle extends JFrame implements KeyListener {
     }
 
     void updatePanel() {
+        // Updates the health and stamina of the player and enemy
         playerInfo.setText("HEALTH: " + player.health + "    STAMINA: " + player.stamina);
         enemyInfo.setText("HEALTH: " + enemy.health + "    STAMINA: " + enemy.stamina);
     }
 
     public void addMessage(String message, boolean stopReplacement) {
+        // Adds a message to the description
         description.removeAll();
         JLabel mess = new JLabel(message);
-        mess.setFont(new Font("Courier", Font.PLAIN, 20));
+        mess.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
         description.add(mess);
         addedMessage = stopReplacement;
         validate();
@@ -197,6 +203,7 @@ public class Battle extends JFrame implements KeyListener {
     }
 
     public void attackStart(int picks) {
+        // Creates a question for the user to answer
         choice = picks;
         if (player.attack(choice)) {
             question = new Questions(this, player.attackStats[choice][0]);
@@ -210,12 +217,16 @@ public class Battle extends JFrame implements KeyListener {
     }
 
     public void attackComplete(double amount) {
+        // Called by the question class, attacks if the player answered correctly
         question.setVisible(false);
         boolean isStunned = false;
         if (question.right) {
             if (enemy.attacked(amount)) {
-                addMessage("You win gaining " + (location+1) * 10 +
-                        " money and unlocking the next stage!", true);
+                String message = "You win gaining " + (location+1) * 10 + " money";
+                if (location == trainer.level) {
+                    message += " and unlocking the next stage!";
+                }
+                addMessage( message, true);
                 source.endBattle(true);
                 return;
             }
@@ -237,6 +248,7 @@ public class Battle extends JFrame implements KeyListener {
     }
 
     public void defend() {
+        // Adds health and stamina to the pokemon and updates the screen accordingly
         player.defend();
         addMessage("You defended gaining " + player.defendIncrease + " health and stamina!", false);
         updatePanel();
@@ -244,11 +256,13 @@ public class Battle extends JFrame implements KeyListener {
     }
 
     public void retreat() {
+        // Ends the battle early
         addMessage("You ran away!", true);
         source.endBattle(false);
     }
 
     public void updateItems() {
+        // Updates the number of items left in the itemMenu
         for (int i = 0; i < itemsMenu.length; i++) {
             itemsMenu[i][0].setText(trainer.items[i].name + " x" + trainer.items[i].amount);
         }
@@ -257,18 +271,29 @@ public class Battle extends JFrame implements KeyListener {
     }
 
     public void useItem(int index) {
+        // Handles an item being used
         if (trainer.items[index].amount == 0) {
             addMessage("You don't have any of this item", true);
             return;
         }
+        // Handles the pokeball being used
+        // The player can only catch pokemon that are in the jungle
         if (index == 0) {
             if (location == 1) {
-                addMessage("You captured the PokeHardWareMon!", true);
-                trainer.items[index].use(trainer, player, enemy);
-                source.endBattle(true);
-                return;
+                if (enemy.health <= 30) {
+                    String message = "You captured the PokeHardWareMon, gaining " + (location+1) * 10 + " money";
+                    if (location == trainer.level) {
+                        message += " and unlocking the next stage!";
+                    }
+                    addMessage(message, true);
+                    trainer.items[index].use(trainer, player, enemy);
+                    source.endBattle(true);
+                } else {
+                    addMessage("You need to get the pokemon to 30HP or under", true);
+                }
+            } else {
+                addMessage("You can't capture PokeHardWareMon outside the jungle", true);
             }
-            addMessage("You can't capture PokeHardWareMon outside the jungle", true);
         } else {
             trainer.items[index].use(trainer, player, enemy);
             updatePanel();
@@ -277,6 +302,7 @@ public class Battle extends JFrame implements KeyListener {
     }
 
     public void AITurn() {
+        // Waits a while to make play more organic, then calls AIPlay
         ActionListener AITurn = evt -> {
             AIPlay();
         };
@@ -286,6 +312,7 @@ public class Battle extends JFrame implements KeyListener {
     }
 
     public void AIPlay() {
+        // Handles the AI's moves
         double[] action = enemyAI.action();
         if (action[0] == -1 && action[1] == -1) {
             updatePanel();
@@ -301,15 +328,18 @@ public class Battle extends JFrame implements KeyListener {
             if (action[1] == 1) {
                 message += " and stunning you!";
                 addMessage(message, false);
+                enemyAI.isEnemyStunned = true;
                 AITurn();
             } else {
                 addMessage(message, false);
+                enemyAI.isEnemyStunned = false;
             }
         }
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
+        // Calls the appropriate functions when a button is pressed
         int keyCode = e.getKeyCode();
         int goToMenu = currentMenu;
         if (wait) {
